@@ -3,9 +3,15 @@ package main
 import (
 	"fmt"
 	"jys/main/tutorial"
+	"log"
 )
 
 func main() {
-	message := tutorial.Hello("Gladys")
+	message, err := tutorial.Hello("")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	fmt.Println(message)
 }
