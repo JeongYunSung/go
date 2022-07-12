@@ -1,16 +1,50 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"github.com/jys/learngo/dict"
+	"net/http"
 )
 
+var errRequestFailed = errors.New("request failed")
+
 func main() {
-	dictionary := dict.Dictionary{"hello": "안녕하세요", "bye": "들어가세요"}
-	dictionary["bye"] = "안녕히 가세요"
-	dictionary.Add("hi", "안녕")
-	fmt.Println(dictionary)
-	fmt.Println(dictionary.Search("hi"))
-	dictionary1 := dict.Dictionary{"hello": "안녕하세요", "bye": "들어가세요"}
-	fmt.Println(dictionary1)
+	var results = make(map[string]string)
+
+	urls := []string{
+		"https://www.baidu.com",
+		"https://www.google.com",
+		"https://www.amazon.com",
+		"https://www.airbnb.com",
+		"https://www.reddit.com",
+		"https://www.soundcloude.com",
+		"https://www.facebook.com",
+		"https://www.instagram.com",
+	}
+
+	for _, url := range urls {
+		result := "OK"
+		err := hitURL(url)
+		if err != nil {
+			result = "FAILED"
+		}
+		results[url] = result
+	}
+
+	for url, result := range results {
+		fmt.Println(url, result)
+	}
+
+}
+
+func hitURL(url string) error {
+	fmt.Println("Checking:", url)
+	resp, err := http.Get(url)
+	if err != nil || resp.StatusCode >= 400 {
+		fmt.Println(err, resp.StatusCode)
+		return errRequestFailed
+	}
+	defer resp.Body.Close()
+
+	return nil
 }
