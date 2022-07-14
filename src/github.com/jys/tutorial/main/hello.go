@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"jys/main/tutorial"
+	"jys/tutorial/main/tutorial"
 	"log"
 )
 
