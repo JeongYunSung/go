@@ -1,3 +1,3 @@
-module jys
+module tutorial
 
 go 1.18

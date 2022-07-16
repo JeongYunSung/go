@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/jys/learngo/dict"
+	"learngo/dict"
 )
 
 func main() {

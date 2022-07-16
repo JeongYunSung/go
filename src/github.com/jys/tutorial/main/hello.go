@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"jys/main/tutorial"
 	"log"
+	"tutorial/main/tutorial"
 )
 
 func main() {
