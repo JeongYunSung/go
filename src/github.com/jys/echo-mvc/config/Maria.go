@@ -15,7 +15,7 @@ type config struct {
 	dbPassword   string
 }
 
-func Init() {
+func Init() *gorm.DB {
 	config := createConfig()
 
 	dsn := config.dbUser + ":" + config.dbPassword + "@tcp(" + config.dbUrl + ")/" + config.dbDatabase + "?charset=utf8&parseTime=True&loc=Local"
@@ -25,7 +25,9 @@ func Init() {
 		PrepareStmt:            true,
 	})
 
-	_ = db.AutoMigrate(&domain.Music{})
+	db.AutoMigrate(&domain.Music{})
+
+	return db
 }
 
 func createConfig() config {

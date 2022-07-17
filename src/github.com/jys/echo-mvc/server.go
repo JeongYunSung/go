@@ -2,10 +2,15 @@ package main
 
 import (
 	"github.com/joho/godotenv"
-	"mvc/config"
+	"github.com/labstack/echo/v4"
+	"mvc/router"
 )
 
 func main() {
-	_ = godotenv.Load()
-	config.Init()
+	e := echo.New()
+
+	godotenv.Load()
+	router.Route(e)
+
+	e.Logger.Fatal(e.Start(":8080"))
 }
