@@ -5,16 +5,19 @@ import (
 	"mvc/domain"
 	"mvc/repository"
 	"net/http"
+	"strconv"
 )
 
 func Index(c echo.Context) error {
-	repository.FindAll()
-	return c.String(http.StatusOK, "NoContent")
+	musics := repository.FindAll()
+	return c.JSON(http.StatusOK, musics)
 }
 
 func Show(c echo.Context) error {
-
-	return nil
+	id := c.Param("id")
+	uid, _ := strconv.ParseUint(id, 10, 32)
+	music := repository.Find(uint(uid))
+	return c.JSON(http.StatusOK, music)
 }
 
 func Create(c echo.Context) error {
@@ -24,14 +27,4 @@ func Create(c echo.Context) error {
 	music := domain.Music{Title: title, Artist: artist}
 	repository.Create(music)
 	return c.NoContent(http.StatusNoContent)
-}
-
-func Update(c echo.Context) error {
-
-	return nil
-}
-
-func Delete(c echo.Context) error {
-
-	return nil
 }

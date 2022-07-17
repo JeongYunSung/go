@@ -8,8 +8,9 @@ import (
 
 func main() {
 	e := echo.New()
+	defer e.Close()
 
-	godotenv.Load()
+	godotenv.Load(".env")
 	router.Route(e)
 
 	e.Logger.Fatal(e.Start(":8080"))

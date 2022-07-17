@@ -1,6 +1,6 @@
 package domain
 
-import "github.com/jinzhu/gorm"
+import "gorm.io/gorm"
 
 type Music struct {
 	gorm.Model

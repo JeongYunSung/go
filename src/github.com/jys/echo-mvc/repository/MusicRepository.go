@@ -1,18 +1,27 @@
 package repository
 
 import (
-	"fmt"
 	"mvc/config"
 	"mvc/domain"
 )
 
-func FindAll() {
+func Find(id uint) *domain.Music {
 	db := config.Init()
 
-	var musics []domain.Music
-	db.Find(&musics)
+	music := &domain.Music{}
 
-	fmt.Println(musics)
+	db.Where("ID = ?", id).Find(music)
+
+	return music
+}
+
+func FindAll() *[]domain.Music {
+	db := config.Init()
+
+	musics := &[]domain.Music{}
+	db.Find(musics)
+
+	return musics
 }
 
 func Create(music domain.Music) {
