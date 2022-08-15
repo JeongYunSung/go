@@ -1,0 +1,96 @@
+?   	benchmark	[no test files]
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+goos: darwin
+goarch: arm64
+pkg: benchmark/struct
+BenchmarkMemoryStack2-8   	
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+   37686	     31093 ns/op	       0 B/op	       0 allocs/op
+BenchmarkMemoryStack2-8   	
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+   38504	     31100 ns/op	       0 B/op	       0 allocs/op
+BenchmarkMemoryStack2-8   	
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+   38528	     31091 ns/op	       0 B/op	       0 allocs/op
+BenchmarkMemoryStack2-8   	
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+   38551	     31174 ns/op	       0 B/op	       0 allocs/op
+BenchmarkMemoryStack2-8   	
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+   38182	     31319 ns/op	       0 B/op	       0 allocs/op
+BenchmarkMemoryStack2-8   	
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+   38451	     31144 ns/op	       0 B/op	       0 allocs/op
+BenchmarkMemoryStack2-8   	
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+   38550	     31103 ns/op	       0 B/op	       0 allocs/op
+BenchmarkMemoryStack2-8   	
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+   38468	     31126 ns/op	       0 B/op	       0 allocs/op
+BenchmarkMemoryStack2-8   	
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+   38436	     31367 ns/op	       0 B/op	       0 allocs/op
+BenchmarkMemoryStack2-8   	
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+
+ Stack - 1: &{1 2 3 Jeong Yun Sung} 2: &{1 2 3 Jeong Yun Sung} 
+   38282	     31263 ns/op	       0 B/op	       0 allocs/op
+PASS
+ok  	benchmark/struct	15.498s

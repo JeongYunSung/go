@@ -1,0 +1,96 @@
+?   	benchmark	[no test files]
+
+ Heap - 1: 0x1400009a028 2: 0x1400009a030 
+goos: darwin
+goarch: arm64
+pkg: benchmark/struct
+BenchmarkMemoryHeap2-8   	
+ Heap - 1: 0x1400000e008 2: 0x1400000e010 
+
+ Heap - 1: 0x1400009a020 2: 0x1400009a028 
+
+ Heap - 1: 0x1400009a020 2: 0x1400009a028 
+   36320	     32511 ns/op	       0 B/op	       0 allocs/op
+BenchmarkMemoryHeap2-8   	
+ Heap - 1: 0x1400000e010 2: 0x1400000e018 
+
+ Heap - 1: 0x1400009a020 2: 0x1400009a028 
+
+ Heap - 1: 0x1400000e010 2: 0x1400000e018 
+
+ Heap - 1: 0x1400009a028 2: 0x1400009a030 
+   36549	     31705 ns/op	       0 B/op	       0 allocs/op
+BenchmarkMemoryHeap2-8   	
+ Heap - 1: 0x1400000e010 2: 0x1400000e018 
+
+ Heap - 1: 0x1400009a028 2: 0x1400009a030 
+
+ Heap - 1: 0x1400000e010 2: 0x1400000e018 
+
+ Heap - 1: 0x1400009a028 2: 0x1400009a030 
+   38601	     31200 ns/op	       0 B/op	       0 allocs/op
+BenchmarkMemoryHeap2-8   	
+ Heap - 1: 0x1400000e010 2: 0x1400000e018 
+
+ Heap - 1: 0x1400009a028 2: 0x1400009a030 
+
+ Heap - 1: 0x1400000e010 2: 0x1400000e018 
+
+ Heap - 1: 0x1400009a028 2: 0x1400009a030 
+   37764	     31470 ns/op	       0 B/op	       0 allocs/op
+BenchmarkMemoryHeap2-8   	
+ Heap - 1: 0x1400000e010 2: 0x1400000e018 
+
+ Heap - 1: 0x1400009a028 2: 0x1400009a030 
+
+ Heap - 1: 0x1400000e010 2: 0x1400000e018 
+
+ Heap - 1: 0x1400009a028 2: 0x1400009a030 
+   38086	     31719 ns/op	       0 B/op	       0 allocs/op
+BenchmarkMemoryHeap2-8   	
+ Heap - 1: 0x1400000e010 2: 0x1400000e018 
+
+ Heap - 1: 0x1400009a028 2: 0x1400009a030 
+
+ Heap - 1: 0x1400000e010 2: 0x1400000e018 
+
+ Heap - 1: 0x1400009a028 2: 0x1400009a030 
+   37184	     31643 ns/op	       0 B/op	       0 allocs/op
+BenchmarkMemoryHeap2-8   	
+ Heap - 1: 0x1400000e010 2: 0x1400000e018 
+
+ Heap - 1: 0x1400009a028 2: 0x1400009a030 
+
+ Heap - 1: 0x1400000e010 2: 0x1400000e018 
+
+ Heap - 1: 0x1400009a028 2: 0x1400009a030 
+   38229	     31261 ns/op	       0 B/op	       0 allocs/op
+BenchmarkMemoryHeap2-8   	
+ Heap - 1: 0x1400000e010 2: 0x1400000e018 
+
+ Heap - 1: 0x1400009a028 2: 0x1400009a030 
+
+ Heap - 1: 0x1400000e010 2: 0x1400000e018 
+
+ Heap - 1: 0x1400009a028 2: 0x1400009a030 
+   37844	     31396 ns/op	       0 B/op	       0 allocs/op
+BenchmarkMemoryHeap2-8   	
+ Heap - 1: 0x1400000e010 2: 0x1400000e018 
+
+ Heap - 1: 0x1400009a028 2: 0x1400009a030 
+
+ Heap - 1: 0x1400000e010 2: 0x1400000e018 
+
+ Heap - 1: 0x1400009a028 2: 0x1400009a030 
+   38164	     31610 ns/op	       0 B/op	       0 allocs/op
+BenchmarkMemoryHeap2-8   	
+ Heap - 1: 0x1400000e010 2: 0x1400000e018 
+
+ Heap - 1: 0x1400009a028 2: 0x1400009a030 
+
+ Heap - 1: 0x1400000e010 2: 0x1400000e018 
+
+ Heap - 1: 0x1400009a028 2: 0x1400009a030 
+   38202	     32107 ns/op	       0 B/op	       0 allocs/op
+PASS
+ok  	benchmark/struct	15.521s
