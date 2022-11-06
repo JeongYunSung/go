@@ -1,8 +1,10 @@
 package main
 
 import (
+	"block"
 	"blockchain"
 	"fmt"
+	"strconv"
 )
 
 func main() {
@@ -11,10 +13,12 @@ func main() {
 	bc.AddBlock("Send 1 BTC to Ivan")
 	bc.AddBlock("Send 2 more BTC to Ivan")
 
-	for _, block := range bc.Blocks {
-		fmt.Printf("Prev. hash: %x\n", block.PrevBlockHash)
-		fmt.Printf("Data: %s\n", block.Data)
-		fmt.Printf("Hash: %x\n", block.Hash)
+	for _, b := range bc.Blocks {
+		fmt.Printf("Prev. hash: %x\n", b.PrevBlockHash)
+		fmt.Printf("Data: %s\n", b.Data)
+		fmt.Printf("Hash: %x\n", b.Hash)
+		fmt.Printf("Nonce: %d\n", b.Nonce)
+		fmt.Printf("PoW: %s\n", strconv.FormatBool(block.NewProofOfWork(b).Validate()))
 		fmt.Println()
 	}
 }
