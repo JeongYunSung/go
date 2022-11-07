@@ -44,7 +44,7 @@ type value struct {
 
 var (
 	pageSize = 1000
-	dateList = map[string]int{"202207": 0, "202208": 0, "202209": 0, "202210": 0, "202211": 0}
+	dateList = map[string]int{"202208": 0, "202209": 0}
 )
 
 func main() {
@@ -54,7 +54,17 @@ func main() {
 	now := time.Now()
 
 	sizeRequest()
-	mainRequest()
+
+	result := mainRequest()
+
+	for k, v := range result {
+		if k == "2305559427" {
+			for _, order := range v {
+				fmt.Printf("user_id : %s, m_id : %s, trlog_id : %s, order_code : %s, p_code : %s, p_name : %s\ncount : %s, sales : %d, commission : %d, status : %s, date: %s comment : %s \n",
+					k, order.MId, order.TrlogId, order.OCd, order.PCd, order.PNm, order.ItCnt, order.Sales, order.Commission, order.Status, order.Yyyymmdd+order.Hhmiss, order.TransComment)
+			}
+		}
+	}
 
 	fmt.Println("time : ", time.Since(now))
 
@@ -85,9 +95,11 @@ func sizeRequest() {
 	}
 }
 
-func mainRequest() {
+func mainRequest() map[string][]linkData {
 	ch := make(chan *value)
-	fin := make(chan int)
+	fin := make(chan map[string][]linkData)
+
+	result := make(map[string][]linkData)
 
 	for k := range dateList {
 		for index := 1; index <= getSumPage(k); index++ {
@@ -98,9 +110,13 @@ func mainRequest() {
 
 	for k := range dateList {
 		for index := 1; index <= getSumPage(k); index++ {
-			<-fin
+			for k, v := range <-fin {
+				result[k] = append(result[k], v...)
+			}
 		}
 	}
+
+	return result
 }
 
 func getSumPage(key string) int {
@@ -113,7 +129,7 @@ func getSumPage(key string) int {
 	return sumPage
 }
 
-func request(ch <-chan *value, fin chan<- int) {
+func request(ch <-chan *value, fin chan<- map[string][]linkData) {
 	data := <-ch
 
 	res := getData(data)
@@ -124,17 +140,8 @@ func request(ch <-chan *value, fin chan<- int) {
 		orders[order.OCd] = append(orders[order.OCd], order)
 	}
 
-	for k, v := range orders {
-		for _, order := range v {
-			if order.OCd == "2305559427" {
-				fmt.Printf("user_id : %s, m_id : %s, trlog_id : %s, order_code : %s, p_code : %s, p_name : %s\ncount : %s, sales : %d, commission : %d, status : %s, date: %s comment : %s \n",
-					k, order.MId, order.TrlogId, order.OCd, order.PCd, order.PNm, order.ItCnt, order.Sales, order.Commission, order.Status, order.Yyyymmdd+order.Hhmiss, order.TransComment)
-			}
-		}
-	}
-
 	defer (func() {
-		fin <- 1
+		fin <- orders
 	})()
 }
 
