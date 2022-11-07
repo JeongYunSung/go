@@ -3,10 +3,14 @@ package linkprice
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	tea "github.com/charmbracelet/bubbletea"
 	"io"
 	"net/http"
 	"strconv"
 	"text/template"
+	"time"
+	"ui"
 )
 
 type response struct {
@@ -32,6 +36,11 @@ type linkData struct {
 	TransComment string `json:"trans_comment"`
 }
 
+type finish struct {
+	name   string
+	orders map[string][]linkData
+}
+
 type value struct {
 	index int
 	date  string
@@ -43,13 +52,28 @@ type Request struct {
 	DateList map[string]int
 }
 
+type view struct {
+	model   ui.Model
+	program *tea.Program
+}
+
 type LinkPrice interface {
 	GetRequest(req *Request) *map[string][]linkData
 }
 
 func GetRequest(req *Request) *map[string][]linkData {
 	sizeRequest(req)
-	return mainRequest(req)
+
+	model := ui.NewModel(getPrettyName(req))
+	program := tea.NewProgram(model)
+
+	go func(p *tea.Program) {
+		p.Start()
+	}(program)
+
+	v := &view{model, program}
+
+	return mainRequest(v, req)
 }
 
 func sizeRequest(req *Request) {
@@ -75,9 +99,9 @@ func sizeRequest(req *Request) {
 	}
 }
 
-func mainRequest(req *Request) *map[string][]linkData {
+func mainRequest(v *view, req *Request) *map[string][]linkData {
 	ch := make(chan *value)
-	fin := make(chan map[string][]linkData)
+	fin := make(chan finish)
 
 	result := make(map[string][]linkData)
 
@@ -90,13 +114,33 @@ func mainRequest(req *Request) *map[string][]linkData {
 
 	for k := range req.DateList {
 		for index := 1; index <= getSumPage(req, k); index++ {
-			for k, v := range <-fin {
+			element := <-fin
+			for _, v := range element.orders {
 				result[k] = append(result[k], v...)
 			}
+			v.program.Send(v.model.NextTick())
 		}
 	}
 
+	time.Sleep(1 * time.Millisecond)
+
+	v.program.Send(v.model.NextTick())
+
 	return &result
+}
+
+func getPrettyName(req *Request) []string {
+	requests := []string{"페이지 계산"}
+
+	for k, v := range req.DateList {
+		for i := 1; i <= v; i++ {
+			requests = append(requests, fmt.Sprintf("%s > %d 페이지", k, i))
+		}
+	}
+
+	requests = append(requests, "fin")
+
+	return requests
 }
 
 func getSumPage(req *Request, key string) int {
@@ -109,7 +153,7 @@ func getSumPage(req *Request, key string) int {
 	return sumPage
 }
 
-func request(ch <-chan *value, fin chan<- map[string][]linkData) {
+func request(ch <-chan *value, fin chan<- finish) {
 	data := <-ch
 
 	res := getData(data)
@@ -121,7 +165,7 @@ func request(ch <-chan *value, fin chan<- map[string][]linkData) {
 	}
 
 	defer (func() {
-		fin <- orders
+		fin <- finish{name: fmt.Sprintf("%s-%d", data.date, data.index), orders: orders}
 	})()
 }
 
