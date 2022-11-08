@@ -115,8 +115,10 @@ func mainRequest(v *view, req *Request) *map[string][]linkData {
 	for k := range req.DateList {
 		for index := 1; index <= getSumPage(req, k); index++ {
 			element := <-fin
-			for _, v := range element.orders {
-				result[k] = append(result[k], v...)
+			for _, orders := range element.orders {
+				for _, order := range orders {
+					result[order.OCd] = append(result[order.OCd], orders...)
+				}
 			}
 			v.program.Send(v.model.NextTick())
 		}
@@ -182,7 +184,7 @@ func getData(data *value) response {
 }
 
 func getURL(data *value) string {
-	tmp, _ := template.New("url").Parse("http://api.linkprice.com/affiliate/translist.php?a_id=&auth_key=&yyyymmdd={{.Date}}&page={{.Page}}&per_page={{.PerPage}}")
+	tmp, _ := template.New("url").Parse("http://api.linkprice.com/affiliate/translist.php?a_id=A100675064&auth_key=3491b643ffeb0d893e34b5dc7f714964&yyyymmdd={{.Date}}&page={{.Page}}&per_page={{.PerPage}}")
 
 	b := bytes.Buffer{}
 	tmp.Execute(&b, map[string]string{"Page": strconv.Itoa(data.index), "Date": data.date, "PerPage": strconv.Itoa(data.size)})

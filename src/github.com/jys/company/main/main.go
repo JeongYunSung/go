@@ -5,6 +5,7 @@ import (
 	"linkprice"
 	"os"
 	"runtime/trace"
+	"time"
 )
 
 var (
@@ -15,6 +16,8 @@ var (
 func main() {
 	f, _ := os.Create("trace.out")
 	trace.Start(f)
+
+	time.Sleep(10 * time.Millisecond)
 
 	for k, v := range *linkprice.GetRequest(&linkprice.Request{PageSize: pageSize, DateList: dateList}) {
 		if k == "2305559427" {
