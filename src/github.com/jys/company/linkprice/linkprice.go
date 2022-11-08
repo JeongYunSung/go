@@ -3,14 +3,16 @@ package linkprice
 import (
 	"bytes"
 	"encoding/json"
+	"fetch"
 	"fmt"
+	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"io"
+	"lnlist"
 	"net/http"
 	"strconv"
 	"text/template"
 	"time"
-	"ui"
 )
 
 type response struct {
@@ -38,7 +40,7 @@ type linkData struct {
 
 type finish struct {
 	name   string
-	orders map[string][]linkData
+	orders []list.Item
 }
 
 type value struct {
@@ -53,27 +55,28 @@ type Request struct {
 }
 
 type view struct {
-	model   ui.Model
+	lnModel *lnlist.Model
+	model   fetch.Model
 	program *tea.Program
 }
 
 type LinkPrice interface {
-	GetRequest(req *Request) *map[string][]linkData
+	GetRequest(model lnlist.Model, req *Request)
 }
 
-func GetRequest(req *Request) *map[string][]linkData {
+func GetRequest(lnModel *lnlist.Model, req *Request) {
 	sizeRequest(req)
 
-	model := ui.NewModel(getPrettyName(req))
+	model := fetch.NewModel(getPrettyName(req))
 	program := tea.NewProgram(model)
 
 	go func(p *tea.Program) {
 		p.Start()
 	}(program)
 
-	v := &view{model, program}
+	v := &view{lnModel, model, program}
 
-	return mainRequest(v, req)
+	mainRequest(v, req)
 }
 
 func sizeRequest(req *Request) {
@@ -99,11 +102,9 @@ func sizeRequest(req *Request) {
 	}
 }
 
-func mainRequest(v *view, req *Request) *map[string][]linkData {
+func mainRequest(v *view, req *Request) {
 	ch := make(chan *value)
 	fin := make(chan finish)
-
-	result := make(map[string][]linkData)
 
 	for k := range req.DateList {
 		for index := 1; index <= getSumPage(req, k); index++ {
@@ -115,8 +116,8 @@ func mainRequest(v *view, req *Request) *map[string][]linkData {
 	for k := range req.DateList {
 		for index := 1; index <= getSumPage(req, k); index++ {
 			element := <-fin
-			for _, v := range element.orders {
-				result[k] = append(result[k], v...)
+			for _, order := range element.orders {
+				v.lnModel.List.InsertItem(0, order)
 			}
 			v.program.Send(v.model.NextTick())
 		}
@@ -125,8 +126,6 @@ func mainRequest(v *view, req *Request) *map[string][]linkData {
 	time.Sleep(1 * time.Millisecond)
 
 	v.program.Send(v.model.NextTick())
-
-	return &result
 }
 
 func getPrettyName(req *Request) []string {
@@ -158,10 +157,11 @@ func request(ch <-chan *value, fin chan<- finish) {
 
 	res := getData(data)
 
-	orders := make(map[string][]linkData)
+	var orders []list.Item
 
 	for _, order := range res.OrderList {
-		orders[order.OCd] = append(orders[order.OCd], order)
+		orders = append(orders, lnlist.Item{Subject: order.OCd, Desc: fmt.Sprintf("user_id : %s, m_id : %s, trlog_id : %s, p_code : %s, p_name : %s, count : %s, sales : %d, commission : %d, status : %s, date: %s comment : %s",
+			order.UserId, order.MId, order.TrlogId, order.PCd, order.PNm, order.ItCnt, order.Sales, order.Commission, order.Status, order.Yyyymmdd+order.Hhmiss, order.TransComment)})
 	}
 
 	defer (func() {

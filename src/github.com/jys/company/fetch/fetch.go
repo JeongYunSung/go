@@ -1,4 +1,4 @@
-package ui
+package fetch
 
 import (
 	"fmt"
@@ -64,7 +64,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 
-		progressCmd := m.progress.SetPercent(float64(m.index) / float64(len(m.requests)-3))
+		progressCmd := m.progress.SetPercent(float64(m.index) / float64(len(m.requests)-2))
 
 		temp := m.index
 
@@ -88,14 +88,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	n := len(m.requests)
+	n := len(m.requests) - 1
 	w := lipgloss.Width(fmt.Sprintf("%d", n))
 
 	if m.done {
-		return doneStyle.Render(fmt.Sprintf("%d 건의 요청 성공\n총 소요 시간 : %s\n", n-2, time.Since(m.startTime)))
+		return doneStyle.Render(fmt.Sprintf("%d 건의 요청 성공\n총 소요 시간 : %s\n", n-1, time.Since(m.startTime)))
 	}
 
-	reqCount := fmt.Sprintf(" %*d/%*d", w, m.index, w, n-2)
+	reqCount := fmt.Sprintf(" %*d/%*d", w, m.index-1, w, n-1)
 
 	spin := m.spinner.View() + " "
 	prog := m.progress.View()
