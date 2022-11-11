@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"text/template"
 	"time"
 	"ui"
 )
@@ -16,29 +15,34 @@ import (
 type response struct {
 	Result    string     `json:"result"`
 	ListCount int        `json:"list_count"`
-	OrderList []linkData `json:"order_list"`
+	OrderList []LinkData `json:"order_list"`
 }
 
-type linkData struct {
-	TrlogId      string `json:"trlog_id"`
-	MId          string `json:"m_id"`
-	OCd          string `json:"o_cd"`
-	PCd          string `json:"p_cd"`
-	PNm          string `json:"p_nm"`
-	ItCnt        string `json:"it_cnt"`
-	UserId       string `json:"user_id"`
-	Status       string `json:"status"`
-	Yyyymmdd     string `json:"yyyymmdd"`
-	Hhmiss       string `json:"hhmiss"`
-	Sales        int    `json:"sales"`
-	Commission   int    `json:"commission"`
-	PurRate      string `json:"pur_rate"`
-	TransComment string `json:"trans_comment"`
+type LinkData struct {
+	TrlogId         string `json:"trlog_id"`
+	MId             string `json:"m_id"`
+	OCd             string `json:"o_cd"`
+	PCd             string `json:"p_cd"`
+	PNm             string `json:"p_nm"`
+	Ccd             string `json:"c_cd"`
+	ItCnt           string `json:"it_cnt"`
+	UserId          string `json:"user_id"`
+	Status          string `json:"status"`
+	Yyyymmdd        string `json:"yyyymmdd"`
+	Hhmiss          string `json:"hhmiss"`
+	Sales           int    `json:"sales"`
+	Commission      int    `json:"commission"`
+	PurRate         string `json:"pur_rate"`
+	TransComment    string `json:"trans_comment"`
+	MemberShipId    string `json:"membership_id"`
+	CreateTimeStamp string `json:"create_time_stamp"`
+	AppliedPgmId    string `json:"applied_pgm_id"`
+	PgmName         string `json:"pgm_name"`
 }
 
 type finish struct {
 	name   string
-	orders map[string][]linkData
+	orders map[string][]LinkData
 }
 
 type value struct {
@@ -58,10 +62,10 @@ type view struct {
 }
 
 type LinkPrice interface {
-	GetRequest(req *Request) *map[string][]linkData
+	GetRequest(req *Request) *map[string][]LinkData
 }
 
-func GetRequest(req *Request) *map[string][]linkData {
+func GetRequest(req *Request) *map[string][]LinkData {
 	sizeRequest(req)
 
 	model := ui.NewModel(getPrettyName(req))
@@ -94,16 +98,16 @@ func sizeRequest(req *Request) {
 	}
 
 	for i := 0; i < len(req.DateList); i++ {
-		value := <-fin
-		req.DateList[value.date] = value.size
+		v := <-fin
+		req.DateList[v.date] = v.size
 	}
 }
 
-func mainRequest(v *view, req *Request) *map[string][]linkData {
+func mainRequest(v *view, req *Request) *map[string][]LinkData {
 	ch := make(chan *value)
 	fin := make(chan finish)
 
-	result := make(map[string][]linkData)
+	result := make(map[string][]LinkData)
 
 	for k := range req.DateList {
 		for index := 1; index <= getSumPage(req, k); index++ {
@@ -117,7 +121,7 @@ func mainRequest(v *view, req *Request) *map[string][]linkData {
 			element := <-fin
 			for _, orders := range element.orders {
 				for _, order := range orders {
-					result[order.OCd] = append(result[order.OCd], orders...)
+					result[order.OCd] = append(result[order.OCd], order)
 				}
 			}
 			v.program.Send(v.model.NextTick())
@@ -160,7 +164,7 @@ func request(ch <-chan *value, fin chan<- finish) {
 
 	res := getData(data)
 
-	orders := make(map[string][]linkData)
+	orders := make(map[string][]LinkData)
 
 	for _, order := range res.OrderList {
 		orders[order.OCd] = append(orders[order.OCd], order)
@@ -184,8 +188,6 @@ func getData(data *value) response {
 }
 
 func getURL(data *value) string {
-	tmp, _ := template.New("url").Parse("http://api.linkprice.com/affiliate/translist.php?a_id=A100675064&auth_key=3491b643ffeb0d893e34b5dc7f714964&yyyymmdd={{.Date}}&page={{.Page}}&per_page={{.PerPage}}")
-
 	b := bytes.Buffer{}
 	tmp.Execute(&b, map[string]string{"Page": strconv.Itoa(data.index), "Date": data.date, "PerPage": strconv.Itoa(data.size)})
 
