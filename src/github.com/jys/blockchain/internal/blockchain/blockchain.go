@@ -2,6 +2,7 @@ package blockchain
 
 import (
 	"block"
+	"bytes"
 	"github.com/boltdb/bolt"
 	"log"
 )
@@ -11,7 +12,7 @@ type Blockchain struct {
 	db  *bolt.DB
 }
 
-type BlockchainIterator struct {
+type Iterator struct {
 	currentHash []byte
 	db          *bolt.DB
 }
@@ -44,12 +45,24 @@ func (bc *Blockchain) AddBlock(data string) {
 	})
 }
 
-func (bc *Blockchain) Iterator() *BlockchainIterator {
-	bci := &BlockchainIterator{bc.tip, bc.db}
+func (bc *Blockchain) Iterator() *Iterator {
+	bci := &Iterator{bc.tip, bc.db}
 	return bci
 }
 
-func (i *BlockchainIterator) Next() *block.Block {
+func (bc *Blockchain) IsLast(hash []byte) bool {
+	var lastHash []byte
+	bc.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(blocksBucket))
+		_, last := b.Cursor().First()
+		lastHash = last
+		return nil
+	})
+
+	return bytes.Equal(hash, lastHash)
+}
+
+func (i *Iterator) Next() *block.Block {
 	var b *block.Block
 
 	i.db.View(func(tx *bolt.Tx) error {
