@@ -11,11 +11,11 @@ func main() {
 	bc := blockchain.NewBlockchain()
 
 	//bc.AddBlock("Send 1 BTC to Ivan")
-	//bc.AddBlock("Last")
+	//bc.AddBlock("Last2")
 
-	iterate := bc.Iterator()
+	iterator := bc.Iterator()
 
-	for b := iterate.Next(); !bc.IsLast(b.Hash); b = iterate.Next() {
+	for b := iterator.Next(); iterator.HasNext(); b = iterator.Next() {
 		fmt.Printf("Prev. hash: %x\n", b.PrevBlockHash)
 		fmt.Printf("Data: %s\n", b.Data)
 		fmt.Printf("Hash: %x\n", b.Hash)
