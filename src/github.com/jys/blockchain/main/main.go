@@ -2,25 +2,43 @@ package main
 
 import (
 	"block"
-	"blockchain"
 	"fmt"
-	"strconv"
 )
 
 func main() {
-	bc := blockchain.NewBlockchain()
+	fmt.Println("=== Before ===")
+	getBalance("jys")
+	getBalance("jys2")
 
-	//bc.AddBlock("Send 1 BTC to Ivan")
-	//bc.AddBlock("Last2")
+	send("jys", "jys2", 10)
 
-	iterator := bc.Iterator()
+	fmt.Println("=== After ===")
+	getBalance("jys")
+	getBalance("jys2")
+}
 
-	for b := iterator.Next(); iterator.HasNext(); b = iterator.Next() {
-		fmt.Printf("Prev. hash: %x\n", b.PrevBlockHash)
-		fmt.Printf("Data: %s\n", b.Data)
-		fmt.Printf("Hash: %x\n", b.Hash)
-		pow := block.NewProofOfWork(b)
-		fmt.Printf("PoW: %s\n", strconv.FormatBool(pow.Validate()))
-		fmt.Println()
+func getBalance(address string) {
+	bc := block.NewBlockchain(address)
+
+	defer bc.Close()
+
+	balance := 0
+	UTXOs := bc.FindUTXO(address)
+
+	for _, out := range UTXOs {
+		balance += out.Value
 	}
+	fmt.Printf("Balance of '%s': %d\n", address, balance)
+}
+
+func send(from, to string, amount int) {
+	bc := block.NewBlockchain(from)
+
+	defer bc.Close()
+
+	tx := block.NewUTXOTransaction(from, to, amount, bc)
+
+	bc.MineBlock([]*block.Transaction{tx})
+
+	fmt.Println("Success!")
 }
