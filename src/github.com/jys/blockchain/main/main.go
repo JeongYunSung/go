@@ -12,8 +12,8 @@ func main() {
 	//createBlockchain("1L6eeATb88Db7AZYXvA7Euxp6VMQ8myrN3")
 	//printChain()
 	//send("1L6eeATb88Db7AZYXvA7Euxp6VMQ8myrN3", "1EYdEoeNMSx66fAA59JSj3fvKEPSXg7yZo", 1)
-	getBalance("1L6eeATb88Db7AZYXvA7Euxp6VMQ8myrN3")
-	getBalance("1EYdEoeNMSx66fAA59JSj3fvKEPSXg7yZo")
+	//getBalance("1L6eeATb88Db7AZYXvA7Euxp6VMQ8myrN3")
+	//getBalance("1EYdEoeNMSx66fAA59JSj3fvKEPSXg7yZo")
 }
 
 func getBalance(address string) {
@@ -46,22 +46,34 @@ func send(from, to string, amount int) {
 	bc := block.NewBlockchain(from)
 	defer bc.Close()
 
-	tx := block.NewUTXOTransaction(from, to, amount, bc)
+	tx, err := block.NewUTXOTransaction(from, to, amount, bc)
+	if err != nil {
+		log.Fatalf("ERROR: %v\n", err)
+	}
+
 	bc.MineBlock([]*block.Transaction{tx})
 	fmt.Println("Success!")
 }
 
 func createWallet() {
-	wallets, _ := block.NewWallets()
-	address := wallets.CreateWallet()
-	wallets.SaveToFile()
+	wallets, err := block.NewWallets()
+	if err != nil {
+		log.Fatalf("ERROR: %v\n", err)
+	}
+	address, err := wallets.CreateWallet()
+	if err != nil {
+		log.Fatalf("ERROR: %v\n", err)
+	}
+	if err := wallets.SaveToFile(); err != nil {
+		log.Fatalf("ERROR: %v\n", err)
+	}
 
 	fmt.Printf("Your new address: %s\n", address)
 }
 
 func createBlockchain(address string) {
 	if !block.ValidateAddress(address) {
-		log.Panic("ERROR: Address is not valid")
+		log.Fatalf("ERROR: Address is not valid\n")
 	}
 	bc := block.CreateBlockchain(address)
 	bc.Close()
@@ -71,7 +83,7 @@ func createBlockchain(address string) {
 func listAddresses() {
 	wallets, err := block.NewWallets()
 	if err != nil {
-		log.Panic(err)
+		log.Fatalf("ERROR: %v\n", err)
 	}
 	addresses := wallets.GetAddresses()
 

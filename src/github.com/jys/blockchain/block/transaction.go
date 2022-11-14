@@ -26,19 +26,6 @@ func (tx Transaction) IsCoinbase() bool {
 	return len(tx.Vin) == 1 && len(tx.Vin[0].Txid) == 0 && tx.Vin[0].Vout == -1
 }
 
-func (tx *Transaction) SetID() {
-	var encoded bytes.Buffer
-	var hash [32]byte
-
-	enc := gob.NewEncoder(&encoded)
-	err := enc.Encode(tx)
-	if err != nil {
-		log.Panic(err)
-	}
-	hash = sha256.Sum256(encoded.Bytes())
-	tx.ID = hash[:]
-}
-
 func (tx Transaction) Serialize() []byte {
 	var encoded bytes.Buffer
 
@@ -75,7 +62,7 @@ func NewCoinbaseTX(to, data string) *Transaction {
 	return &tx
 }
 
-func NewUTXOTransaction(from, to string, amount int, bc *Blockchain) *Transaction {
+func NewUTXOTransaction(from, to string, amount int, bc *Blockchain) (*Transaction, error) {
 	var inputs []TXInput
 	var outputs []TXOutput
 
@@ -84,13 +71,16 @@ func NewUTXOTransaction(from, to string, amount int, bc *Blockchain) *Transactio
 		log.Panic(err)
 	}
 	wallet := wallets.GetWallet(from)
-	pubKeyHash := HashPubKey(wallet.PublicKey)
+	pubKeyHash, err := HashPubKey(wallet.PublicKey)
+	if err != nil {
+		return nil, fmt.Errorf("UTXO트랜잭션을 만드는 도중 에러가 발생했습니다. : %w\n", err)
+	}
 	acc, validOutputs := bc.FindSpendableOutputs(pubKeyHash, amount)
 
 	if acc < amount {
 		log.Panic("ERROR: Not enough funds")
 	}
-	// Build a list of inputs
+
 	for txid, outs := range validOutputs {
 		txID, err := hex.DecodeString(txid)
 		if err != nil {
@@ -114,7 +104,7 @@ func NewUTXOTransaction(from, to string, amount int, bc *Blockchain) *Transactio
 	fmt.Println(key)
 	bc.SignTransaction(&tx, key)
 
-	return &tx
+	return &tx, nil
 }
 
 func (tx *Transaction) TrimmedCopy() Transaction {

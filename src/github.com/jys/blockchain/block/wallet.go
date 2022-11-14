@@ -6,7 +6,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
-	"log"
+	"fmt"
 	"math/big"
 
 	"golang.org/x/crypto/ripemd160"
@@ -28,15 +28,24 @@ type Wallet struct {
 	PublicKey  []byte
 }
 
-func NewWallet() *Wallet {
-	private, public := newKeyPair()
+func NewWallet() (*Wallet, error) {
+	private, public, err := newKeyPair()
+
+	if err != nil {
+		return nil, fmt.Errorf("지갑을 생성하는도중 에러가 발생했습니다. : %w\n", err)
+	}
+
 	wallet := Wallet{elliptic.MarshalCompressed(private.Curve, private.X, private.Y), private.D, public}
 
-	return &wallet
+	return &wallet, nil
 }
 
 func (w Wallet) GetAddress() []byte {
-	pubKeyHash := HashPubKey(w.PublicKey)
+	pubKeyHash, err := HashPubKey(w.PublicKey)
+
+	if err != nil {
+
+	}
 
 	versionedPayload := append([]byte{version}, pubKeyHash...)
 	checksum := checksum(versionedPayload)
@@ -52,20 +61,30 @@ func (w Wallet) UnmarshalPrivateKey() ecdsa.PrivateKey {
 	priKey := ecdsa.PrivateKey{PublicKey: ecdsa.PublicKey{Curve: elliptic.P256(), X: x, Y: y}}
 	priKey.D = w.Data
 	return priKey
-
 }
 
-func HashPubKey(pubKey []byte) []byte {
+func newKeyPair() (ecdsa.PrivateKey, []byte, error) {
+	curve := elliptic.P256()
+	private, err := ecdsa.GenerateKey(curve, rand.Reader)
+	if err != nil {
+		return ecdsa.PrivateKey{}, nil, fmt.Errorf("키를 생성하는도중 에러가 발생했습니다. : %w\n", err)
+	}
+	pubKey := append(private.PublicKey.X.Bytes(), private.PublicKey.Y.Bytes()...)
+
+	return *private, pubKey, nil
+}
+
+func HashPubKey(pubKey []byte) ([]byte, error) {
 	publicSHA256 := sha256.Sum256(pubKey)
 
 	RIPEMD160Hasher := ripemd160.New()
 	_, err := RIPEMD160Hasher.Write(publicSHA256[:])
 	if err != nil {
-		log.Panic(err)
+		return nil, fmt.Errorf("PHK를 생성하는도중 에러가 발생했습니다. : %w\n", err)
 	}
 	publicRIPEMD160 := RIPEMD160Hasher.Sum(nil)
 
-	return publicRIPEMD160
+	return publicRIPEMD160, nil
 }
 
 func ValidateAddress(address string) bool {
@@ -83,15 +102,4 @@ func checksum(payload []byte) []byte {
 	secondSHA := sha256.Sum256(firstSHA[:])
 
 	return secondSHA[:addressChecksumLen]
-}
-
-func newKeyPair() (ecdsa.PrivateKey, []byte) {
-	curve := elliptic.P256()
-	private, err := ecdsa.GenerateKey(curve, rand.Reader)
-	if err != nil {
-		log.Panic(err)
-	}
-	pubKey := append(private.PublicKey.X.Bytes(), private.PublicKey.Y.Bytes()...)
-
-	return *private, pubKey
 }
