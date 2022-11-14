@@ -8,25 +8,29 @@ import (
 )
 
 func main() {
+	//reindexUTXO()
 	//createWallet()
 	//createBlockchain("1L6eeATb88Db7AZYXvA7Euxp6VMQ8myrN3")
+	//createBlockchain("1L6eeATb88Db7AZYXvA7Euxp6VMQ8myrN3")
 	//printChain()
-	//send("1L6eeATb88Db7AZYXvA7Euxp6VMQ8myrN3", "1EYdEoeNMSx66fAA59JSj3fvKEPSXg7yZo", 1)
+	//send("1L6eeATb88Db7AZYXvA7Euxp6VMQ8myrN3", "1EYdEoeNMSx66fAA59JSj3fvKEPSXg7yZo", 2)
 	//getBalance("1L6eeATb88Db7AZYXvA7Euxp6VMQ8myrN3")
 	//getBalance("1EYdEoeNMSx66fAA59JSj3fvKEPSXg7yZo")
+	//getBalance("15NfTsFZD7jHCm2KAMPfh5APFEE8hEoKPj")
 }
 
 func getBalance(address string) {
 	if !block.ValidateAddress(address) {
 		log.Panic("ERROR: Address is not valid")
 	}
-	bc := block.NewBlockchain(address)
+	bc := block.NewBlockchain()
+	UTXOSet := block.UTXOSet{bc}
 	defer bc.Close()
 
 	balance := 0
 	pubKeyHash := block.Base58Decode([]byte(address))
 	pubKeyHash = pubKeyHash[1 : len(pubKeyHash)-4]
-	UTXOs := bc.FindUTXO(pubKeyHash)
+	UTXOs := UTXOSet.FindUTXO(pubKeyHash)
 
 	for _, out := range UTXOs {
 		balance += out.Value
@@ -43,15 +47,21 @@ func send(from, to string, amount int) {
 		log.Panic("ERROR: Recipient address is not valid")
 	}
 
-	bc := block.NewBlockchain(from)
+	bc := block.NewBlockchain()
+	UTXOSet := block.UTXOSet{bc}
 	defer bc.Close()
 
-	tx, err := block.NewUTXOTransaction(from, to, amount, bc)
+	tx, err := block.NewUTXOTransaction(from, to, amount, &UTXOSet)
 	if err != nil {
 		log.Fatalf("ERROR: %v\n", err)
 	}
 
-	bc.MineBlock([]*block.Transaction{tx})
+	cbTx := block.NewCoinbaseTX("15NfTsFZD7jHCm2KAMPfh5APFEE8hEoKPj", "", 1)
+	txs := []*block.Transaction{cbTx, tx}
+
+	newBlock := bc.MineBlock(txs)
+	UTXOSet.Update(newBlock)
+
 	fmt.Println("Success!")
 }
 
@@ -76,7 +86,10 @@ func createBlockchain(address string) {
 		log.Fatalf("ERROR: Address is not valid\n")
 	}
 	bc := block.CreateBlockchain(address)
-	bc.Close()
+	defer bc.Close()
+
+	UTXOSet := block.UTXOSet{bc}
+	UTXOSet.Reindex()
 	fmt.Println("Done!")
 }
 
@@ -93,7 +106,7 @@ func listAddresses() {
 }
 
 func printChain() {
-	bc := block.NewBlockchain("")
+	bc := block.NewBlockchain()
 	defer bc.Close()
 
 	bci := bc.Iterator()
@@ -114,4 +127,15 @@ func printChain() {
 			break
 		}
 	}
+}
+
+func reindexUTXO() {
+	bc := block.NewBlockchain()
+	UTXOSet := block.UTXOSet{bc}
+	UTXOSet.Reindex()
+
+	defer bc.Close()
+
+	count := UTXOSet.CountTransactions()
+	fmt.Printf("Done! There are %d transactions in the UTXO set.\n", count)
 }

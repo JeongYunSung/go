@@ -20,8 +20,6 @@ type Transaction struct {
 	Vout []TXOutput
 }
 
-const subsidy = 10
-
 func (tx Transaction) IsCoinbase() bool {
 	return len(tx.Vin) == 1 && len(tx.Vin[0].Txid) == 0 && tx.Vin[0].Vout == -1
 }
@@ -49,20 +47,26 @@ func (tx *Transaction) Hash() []byte {
 	return hash[:]
 }
 
-func NewCoinbaseTX(to, data string) *Transaction {
+func NewCoinbaseTX(to, data string, amount int) *Transaction {
 	if data == "" {
-		data = fmt.Sprintf("Reward to '%s'", to)
+		randData := make([]byte, 20)
+		_, err := rand.Read(randData)
+		if err != nil {
+			log.Panic(err)
+		}
+
+		data = fmt.Sprintf("%x", randData)
 	}
 
 	txin := TXInput{[]byte{}, -1, nil, []byte(data)}
-	txout := NewTXOutput(subsidy, to)
+	txout := NewTXOutput(amount, to)
 	tx := Transaction{nil, []TXInput{txin}, []TXOutput{*txout}}
 	tx.ID = tx.Hash()
 
 	return &tx
 }
 
-func NewUTXOTransaction(from, to string, amount int, bc *Blockchain) (*Transaction, error) {
+func NewUTXOTransaction(from, to string, amount int, UTXOSet *UTXOSet) (*Transaction, error) {
 	var inputs []TXInput
 	var outputs []TXOutput
 
@@ -75,7 +79,7 @@ func NewUTXOTransaction(from, to string, amount int, bc *Blockchain) (*Transacti
 	if err != nil {
 		return nil, fmt.Errorf("UTXO트랜잭션을 만드는 도중 에러가 발생했습니다. : %w\n", err)
 	}
-	acc, validOutputs := bc.FindSpendableOutputs(pubKeyHash, amount)
+	acc, validOutputs := UTXOSet.FindSpendableOutputs(pubKeyHash, amount)
 
 	if acc < amount {
 		log.Panic("ERROR: Not enough funds")
@@ -95,14 +99,14 @@ func NewUTXOTransaction(from, to string, amount int, bc *Blockchain) (*Transacti
 
 	outputs = append(outputs, *NewTXOutput(amount, to))
 	if acc > amount {
-		outputs = append(outputs, *NewTXOutput(acc-amount, from)) // a change
+		outputs = append(outputs, *NewTXOutput(acc-amount, from))
 	}
 
 	tx := Transaction{nil, inputs, outputs}
 	tx.ID = tx.Hash()
 	key := wallet.UnmarshalPrivateKey()
 	fmt.Println(key)
-	bc.SignTransaction(&tx, key)
+	UTXOSet.Blockchain.SignTransaction(&tx, key)
 
 	return &tx, nil
 }
