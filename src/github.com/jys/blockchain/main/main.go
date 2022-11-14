@@ -3,42 +3,103 @@ package main
 import (
 	"block"
 	"fmt"
+	"log"
+	"strconv"
 )
 
 func main() {
-	fmt.Println("=== Before ===")
-	getBalance("jys")
-	getBalance("jys2")
-
-	send("jys", "jys2", 10)
-
-	fmt.Println("=== After ===")
-	getBalance("jys")
-	getBalance("jys2")
+	//createWallet()
+	//createBlockchain("1L6eeATb88Db7AZYXvA7Euxp6VMQ8myrN3")
+	//printChain()
+	//send("1L6eeATb88Db7AZYXvA7Euxp6VMQ8myrN3", "1EYdEoeNMSx66fAA59JSj3fvKEPSXg7yZo", 1)
+	getBalance("1L6eeATb88Db7AZYXvA7Euxp6VMQ8myrN3")
+	getBalance("1EYdEoeNMSx66fAA59JSj3fvKEPSXg7yZo")
 }
 
 func getBalance(address string) {
+	if !block.ValidateAddress(address) {
+		log.Panic("ERROR: Address is not valid")
+	}
 	bc := block.NewBlockchain(address)
-
 	defer bc.Close()
 
 	balance := 0
-	UTXOs := bc.FindUTXO(address)
+	pubKeyHash := block.Base58Decode([]byte(address))
+	pubKeyHash = pubKeyHash[1 : len(pubKeyHash)-4]
+	UTXOs := bc.FindUTXO(pubKeyHash)
 
 	for _, out := range UTXOs {
 		balance += out.Value
 	}
+
 	fmt.Printf("Balance of '%s': %d\n", address, balance)
 }
 
 func send(from, to string, amount int) {
-	bc := block.NewBlockchain(from)
+	if !block.ValidateAddress(from) {
+		log.Panic("ERROR: Sender address is not valid")
+	}
+	if !block.ValidateAddress(to) {
+		log.Panic("ERROR: Recipient address is not valid")
+	}
 
+	bc := block.NewBlockchain(from)
 	defer bc.Close()
 
 	tx := block.NewUTXOTransaction(from, to, amount, bc)
-
 	bc.MineBlock([]*block.Transaction{tx})
-
 	fmt.Println("Success!")
+}
+
+func createWallet() {
+	wallets, _ := block.NewWallets()
+	address := wallets.CreateWallet()
+	wallets.SaveToFile()
+
+	fmt.Printf("Your new address: %s\n", address)
+}
+
+func createBlockchain(address string) {
+	if !block.ValidateAddress(address) {
+		log.Panic("ERROR: Address is not valid")
+	}
+	bc := block.CreateBlockchain(address)
+	bc.Close()
+	fmt.Println("Done!")
+}
+
+func listAddresses() {
+	wallets, err := block.NewWallets()
+	if err != nil {
+		log.Panic(err)
+	}
+	addresses := wallets.GetAddresses()
+
+	for _, address := range addresses {
+		fmt.Println(address)
+	}
+}
+
+func printChain() {
+	bc := block.NewBlockchain("")
+	defer bc.Close()
+
+	bci := bc.Iterator()
+
+	for {
+		b := bci.Next()
+
+		fmt.Printf("============ Block %x ============\n", b.Hash)
+		fmt.Printf("Prev. b: %x\n", b.PrevBlockHash)
+		pow := block.NewProofOfWork(b)
+		fmt.Printf("PoW: %s\n\n", strconv.FormatBool(pow.Validate()))
+		for _, tx := range b.Transactions {
+			fmt.Println(tx)
+		}
+		fmt.Printf("\n\n")
+
+		if len(b.PrevBlockHash) == 0 {
+			break
+		}
+	}
 }
